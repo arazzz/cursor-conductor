@@ -1,5 +1,5 @@
 {
-  "name": "tpmousexpjs",
+  "name": "cursor-conductor",
   "main": "src/main.js",
   "type": "module",
   "scripts": {
