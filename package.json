@@ -1,0 +1,25 @@
+{
+  "name": "cursor-conductor",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon --watch 'src/**/*.{js,cjs,mjs,ts,jsx,tsx}' --exec 'electron .'",
+    "start": "electron ."
+  },
+  "dependencies": {
+    "@jitsi/robotjs": "^0.6.13",
+    "consola": "^3.2.3",
+    "electron": "^28.0.0",
+    "lodash": "^4.17.21",
+    "node-gyp": "^10.0.1",
+    "uiohook-napi": "^1.5.2",
+    "valtio": "^1.12.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "bun-types": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
