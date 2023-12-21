@@ -19,14 +19,16 @@ export const registerGlobalShortcut = (key, callback) => {
     callback,
     ret: null,
     register: () => {
-      logger.info(`Registering global shortcut: ${key}`);
+      // logger.info(`Registering global shortcut: ${key}`);
+      base.set(`keyStates.${key}`, false);
       const ret = globalShortcut.register(key, callback);
       base.set(`globalShortcuts.${key}.ret`, ret);
       assert(ret, "registration failed");
       assert(globalShortcut.isRegistered(key), "registration failed");
     },
     unregister: () => {
-      logger.info(`Unregistering global shortcut: ${key}`);
+      // logger.info(`Unregistering global shortcut: ${key}`);
+      base.set(`keyStates.${key}`, false);
       const ret = globalShortcut.unregister(key);
       base.set(`globalShortcuts.${key}.ret`, ret);
       assert(!globalShortcut.isRegistered(key), "unregistration failed");

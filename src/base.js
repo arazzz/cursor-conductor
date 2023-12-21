@@ -4,6 +4,8 @@ class Base {
   constructor() {
     this.data = {
       isKeyboardListenerActive: false,
+      keyStates: {},
+      globalShortcuts: {},
     };
     this.listeners = [];
   }
@@ -45,7 +47,7 @@ class Base {
     const { onlyOnChange } = options;
     return this.subscribe(({ key: _key, value, changed }) => {
       if (onlyOnChange) {
-        if (key === _key && changed) callback({ value, changed });
+        if (key === _key && changed) callback(value);
       } else {
         if (_key === key) callback({ value, changed });
       }

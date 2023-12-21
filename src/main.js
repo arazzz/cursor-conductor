@@ -1,4 +1,5 @@
 import { app } from "electron";
+import { uIOhook, UiohookKey } from "uiohook-napi";
 import robot from "@jitsi/robotjs";
 import consola from "consola";
 import base from "./base.js";
@@ -9,8 +10,11 @@ import {
   registerKeyboardListener,
   unregisterAllGlobalShortcuts,
 } from "./actions.js";
+import { reverseObject } from "./helpers.js";
 
 const logger = consola.withTag("main");
+const keyMap = reverseObject(UiohookKey);
+
 let appActive = false;
 
 const updateMousePosition = ({ dx = 0, dy = 0 }) => {
@@ -22,52 +26,52 @@ const onActive = () => {
   logger.info("App is active");
   // Turn all bindings into registered global shortcuts when app is active; otherwise unregister them to prevent conflict
   Object.keys(config.bindings).forEach((key) => {
-    switch (key) {
-      case "up":
-        registerGlobalShortcut(config.bindings[key], () => {
-          updateMousePosition({ dy: -1 });
-        });
-        break;
-      case "down":
-        registerGlobalShortcut(config.bindings[key], () => {
-          updateMousePosition({ dy: 1 });
-        });
-        break;
-      case "left":
-        registerGlobalShortcut(config.bindings[key], () => {
-          updateMousePosition({ dx: -1 });
-        });
-        break;
-      case "right":
-        // robot.keyTap("right");
-        registerGlobalShortcut(config.bindings[key], () => {
-          updateMousePosition({ dx: 1 });
-        });
-        break;
-      case "mb1":
-        registerGlobalShortcut(config.bindings[key], () => {
-          robot.mouseClick("left");
-        });
-        break;
-      case "mb2":
-        registerGlobalShortcut(config.bindings[key], () => {
-          robot.mouseClick("right");
-        });
-        break;
-      case "mb3":
-        registerGlobalShortcut(config.bindings[key], () => {
-          robot.mouseClick("middle");
-        });
-        break;
-      case "brake":
-        registerGlobalShortcut(config.bindings[key], () => {});
-        break;
-      case "scroll":
-        registerGlobalShortcut(config.bindings[key], () => {});
-        break;
-      default:
-        logger.warn(`Unknown key ${key}`);
-        break;
+    registerGlobalShortcut(config.bindings[key], () => {});
+  });
+
+  uIOhook.start();
+
+  base.subscribe(({ key: givenKey, value, changed }) => {
+    if (appActive && givenKey.includes("keyStates")) {
+      const keyStates = base.get("keyStates");
+      logger.box(keyStates);
+      // logger.info(`key: ${givenKey}, value: ${value}, changed: ${changed}`);
+      // const key = givenKey.replace("keyStates.", "");
+      // const keyIsActive = value;
+      // const configKey = config.reverseBindings[key];
+      // let dx = 0;
+      // let dy = 0;
+      // switch (configKey) {
+      //   case "up":
+      //     if (keyIsActive) dy += -1;
+      //     break;
+      //   case "down":
+      //     if (keyIsActive) dy += 1;
+      //     break;
+      //   case "left":
+      //     if (keyIsActive) dx += -1;
+      //     break;
+      //   case "right":
+      //     if (keyIsActive) dx += 1;
+      //     break;
+      //   case "mb1":
+      //     if (keyIsActive) robot.mouseToggle("down", "left");
+      //     break;
+      //   case "mb2":
+      //     if (keyIsActive) robot.mouseToggle("down", "right");
+      //     break;
+      //   case "mb3":
+      //     if (keyIsActive) robot.mouseToggle("down", "middle");
+      //     break;
+      //   case "brake":
+      //     break;
+      //   case "scroll":
+      //     break;
+      //   default:
+      //     logger.warn(`Unknown key ${configKey}`);
+      //     break;
+      // }
+      // if (dx || dy) updateMousePosition({ dx, dy });
     }
   });
 };
@@ -78,6 +82,8 @@ const onInactive = () => {
   Object.keys(config.bindings).forEach((key) => {
     unregisterGlobalShortcut(config.bindings[key]);
   });
+
+  uIOhook.stop();
 };
 
 app.whenReady().then(() => {
@@ -90,3 +96,19 @@ app.whenReady().then(() => {
 });
 
 app.on("will-quit", () => unregisterAllGlobalShortcuts());
+
+uIOhook.on("keydown", (e) => {
+  const key = keyMap[String(e.keycode)];
+  if (appActive && Object.keys(config.reverseBindings).includes(key)) {
+    if (!key) logger.warn(`Unknown key ${e?.keycode}`);
+    if (key) base.set(`keyStates.${key}`, true);
+  }
+});
+
+uIOhook.on("keyup", (e) => {
+  const key = keyMap[String(e.keycode)];
+  if (appActive && Object.keys(config.reverseBindings).includes(key)) {
+    if (!key) logger.warn(`Unknown key ${e?.keycode}`);
+    if (key) base.set(`keyStates.${key}`, false);
+  }
+});

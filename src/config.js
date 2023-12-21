@@ -1,3 +1,5 @@
+import { reverseObject } from "./helpers.js";
+
 export const config = {
   bindings: {
     up: "I",
@@ -11,5 +13,7 @@ export const config = {
     scroll: "Space",
   },
 };
+
+config.reverseBindings = reverseObject(config.bindings);
 
 export default config;
