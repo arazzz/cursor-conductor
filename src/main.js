@@ -24,10 +24,6 @@ robot.setKeyboardDelay(0);
 
 const relMoveMose = ({ dx = 0, dy = 0 }) => {
   const { x, y } = robot.getMousePos();
-  const dt =
-    base.get("mouseStates.dt") ??
-    Date.now() - base.get("mouseStates.time") ??
-    0.00001;
   let vx = dx * config.acceleration;
   let vy = dy * config.acceleration;
   vx *= config.inertia;
@@ -36,8 +32,8 @@ const relMoveMose = ({ dx = 0, dy = 0 }) => {
   vy = vy > 0 ? Math.min(vy, config.maxSpeed) : Math.max(vy, -config.maxSpeed);
   vx = vx > 0 ? Math.min(vx, config.maxSpeed) : Math.max(vx, -config.maxSpeed);
 
-  let pos_x = vx * dt + x;
-  let pos_y = vy * dt + y;
+  let pos_x = vx + x;
+  let pos_y = vy + y;
   pos_x = Math.round(pos_x);
   pos_y = Math.round(pos_y);
 
