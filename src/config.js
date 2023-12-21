@@ -1,6 +1,9 @@
 import { reverseObject } from "./helpers.js";
 
 export const config = {
+  sensitivity: 5,
+  scrollSensitivity: 2,
+  brakingFactor: 0.5,
   bindings: {
     up: "I",
     down: "K",

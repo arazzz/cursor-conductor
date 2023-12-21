@@ -1,9 +1,9 @@
 import { globalShortcut } from "electron";
+import { logger } from "./helpers.js";
 import base from "./base.js";
 import consola from "consola";
 import assert from "assert";
-
-const logger = consola.withTag("actions");
+import { colors } from "consola/utils";
 
 export const registerKeyboardListener = () => {
   const ret = globalShortcut.register("Alt+`", () =>
@@ -42,5 +42,18 @@ export const unregisterGlobalShortcut = (key) =>
   base.get(`globalShortcuts.${key}`).unregister();
 
 export const unregisterAllGlobalShortcuts = () => {
+  logger.log(colors.red("Unregistering all global shortcuts..."));
   globalShortcut.unregisterAll();
+};
+
+export const uIOhookStop = (uIOhook) => {
+  if (!base.get("isUIOhookRunning")) return;
+  uIOhook.stop();
+  base.set("isUIOhookRunning", false);
+};
+
+export const uIOhookStart = (uIOhook) => {
+  if (base.get("isUIOhookRunning")) return;
+  uIOhook.start();
+  base.set("isUIOhookRunning", true);
 };

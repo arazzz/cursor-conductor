@@ -6,6 +6,7 @@ class Base {
       isKeyboardListenerActive: false,
       keyStates: {},
       globalShortcuts: {},
+      isUIOhookRunning: false,
     };
     this.listeners = [];
   }
