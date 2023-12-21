@@ -44,6 +44,10 @@ class Base {
     this.listeners.splice(this.listeners.indexOf(listener), 1);
   }
 
+  unsubscribeAllButFirst() {
+    this.listeners = [this.listeners[0]];
+  }
+
   on(key, callback, options = { onlyOnChange: false }) {
     // const { once, debounce, throttle, onlyOnChange } = options;
     const { onlyOnChange } = options;
@@ -58,6 +62,10 @@ class Base {
 
   onChange(key, callback, options = {}) {
     return this.on(key, callback, { onlyOnChange: true, ...options });
+  }
+
+  getAllListeners() {
+    return this.listeners;
   }
 }
 

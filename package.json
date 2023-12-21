@@ -1,15 +1,18 @@
 {
   "name": "cursor-conductor",
+  "author": "arazzz",
+  "version": "0.0.1",
+  "description": "A simple desktop app to control mouse cursor position via keyboard shortcuts.",
   "main": "src/main.js",
   "type": "module",
   "scripts": {
     "dev": "nodemon --watch 'src/**/*.{js,cjs,mjs,ts,jsx,tsx}' --exec 'electron .'",
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder"
   },
   "dependencies": {
     "@jitsi/robotjs": "^0.6.13",
     "consola": "^3.2.3",
-    "electron": "^28.0.0",
     "exit-hook": "^4.0.0",
     "lodash": "^4.17.21",
     "node-gyp": "^10.0.1",
@@ -20,6 +23,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.2",
+    "electron": "28.0.0",
+    "electron-builder": "^24.9.1",
     "bun-types": "latest"
   },
   "peerDependencies": {

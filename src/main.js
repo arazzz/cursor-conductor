@@ -13,7 +13,6 @@ import {
   uIOhookStop,
 } from "./actions.js";
 import { reverseObject, logger } from "./helpers.js";
-import _ from "lodash";
 
 const keyMap = reverseObject(UiohookKey);
 
@@ -23,31 +22,11 @@ robot.setMouseDelay(0);
 robot.setKeyboardDelay(0);
 
 const relMoveMose = ({ dx = 0, dy = 0 }) => {
-  const { x, y } = robot.getMousePos();
-  let vx = dx * config.acceleration;
-  let vy = dy * config.acceleration;
-  vx *= config.inertia;
-  vy *= config.inertia;
-
-  vy = vy > 0 ? Math.min(vy, config.maxSpeed) : Math.max(vy, -config.maxSpeed);
-  vx = vx > 0 ? Math.min(vx, config.maxSpeed) : Math.max(vx, -config.maxSpeed);
-
-  let pos_x = vx + x;
-  let pos_y = vy + y;
-  pos_x = Math.round(pos_x);
-  pos_y = Math.round(pos_y);
-
-  logger.box({
-    x,
-    y,
-    dt,
-    vx,
-    vy,
-    pos_x,
-    pos_y,
-  });
-
-  robot.moveMouse(pos_x, pos_y);
+  const { x: x0, y: y0 } = robot.getMousePos();
+  const x1 = Math.round(x0 + dx);
+  const y1 = Math.round(y0 + dy);
+  // logger.info(`Moving mouse: ${x0} ${y0} -> ${x1} ${y1}`);
+  robot.moveMouse(x1, y1);
 };
 
 const onActive = () => {
@@ -76,7 +55,8 @@ const onActive = () => {
       if (keyStates[config.bindings["scroll"]]) scrollIsActive = true;
       if (keyStates[config.bindings["brake"]]) {
         sensitivity = config.sensitivity * config.brakingFactor;
-        scrollSensitivity = config.scrollSensitivity * config.brakingFactor;
+        scrollSensitivity =
+          config.scrollSensitivity * config.scrollBrakingFactor;
       }
 
       for (let i = 0; i < keys.length; i++) {
@@ -123,8 +103,9 @@ const onActive = () => {
           default:
             break;
         }
-        if (dx || dy) relMoveMose({ dx, dy });
       }
+      // logger.info(`dx: ${dx}, dy: ${dy}`);
+      if (dx || dy) relMoveMose({ dx, dy });
     }
   });
 };
@@ -138,6 +119,8 @@ const onInactive = () => {
   Object.keys(config.bindings).forEach((key) => {
     unregisterGlobalShortcut(config.bindings[key]);
   });
+
+  base.unsubscribeAllButFirst();
 };
 
 app.whenReady().then(() => {
@@ -165,22 +148,6 @@ app.whenReady().then(() => {
       if (!key) logger.warn(`Unknown key ${e?.keycode}`);
       // if (key && base.get(`keyStates.${key}`))
       if (key) base.set(`keyStates.${key}`, false);
-    }
-  });
-
-  uIOhook.on("mousemove", (e) => {
-    if (appActive) {
-      const x = base.get("mouseStates.x") ?? e.x;
-      const y = base.get("mouseStates.y") ?? e.y;
-      const dx = e.x - x ?? base.get("mouseStates.dx") ?? 0;
-      const dy = e.y - y ?? base.get("mouseStates.dy") ?? 0;
-      const dt = e.time - base.get("mouseStates.time") ?? 0;
-      base.set("mouseStates", {
-        ...e,
-        dx,
-        dy,
-        dt,
-      });
     }
   });
 
