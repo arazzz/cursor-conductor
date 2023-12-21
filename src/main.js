@@ -24,10 +24,34 @@ robot.setKeyboardDelay(0);
 
 const relMoveMose = ({ dx = 0, dy = 0 }) => {
   const { x, y } = robot.getMousePos();
+  const dt =
+    base.get("mouseStates.dt") ??
+    Date.now() - base.get("mouseStates.time") ??
+    0.00001;
+  let vx = dx * config.acceleration;
+  let vy = dy * config.acceleration;
+  vx *= config.inertia;
+  vy *= config.inertia;
 
-  const new_x = _.round(x + dx);
-  const new_y = _.round(y + dy);
-  robot.moveMouse(new_x, new_y);
+  vy = vy > 0 ? Math.min(vy, config.maxSpeed) : Math.max(vy, -config.maxSpeed);
+  vx = vx > 0 ? Math.min(vx, config.maxSpeed) : Math.max(vx, -config.maxSpeed);
+
+  let pos_x = vx * dt + x;
+  let pos_y = vy * dt + y;
+  pos_x = Math.round(pos_x);
+  pos_y = Math.round(pos_y);
+
+  logger.box({
+    x,
+    y,
+    dt,
+    vx,
+    vy,
+    pos_x,
+    pos_y,
+  });
+
+  robot.moveMouse(pos_x, pos_y);
 };
 
 const onActive = () => {
@@ -150,7 +174,17 @@ app.whenReady().then(() => {
 
   uIOhook.on("mousemove", (e) => {
     if (appActive) {
-      consola.box(e);
+      const x = base.get("mouseStates.x") ?? e.x;
+      const y = base.get("mouseStates.y") ?? e.y;
+      const dx = e.x - x ?? base.get("mouseStates.dx") ?? 0;
+      const dy = e.y - y ?? base.get("mouseStates.dy") ?? 0;
+      const dt = e.time - base.get("mouseStates.time") ?? 0;
+      base.set("mouseStates", {
+        ...e,
+        dx,
+        dy,
+        dt,
+      });
     }
   });
 

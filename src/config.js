@@ -4,6 +4,9 @@ export const config = {
   sensitivity: 2,
   scrollSensitivity: 1.75,
   brakingFactor: 0.5,
+  inertia: 0.8,
+  acceleration: 2,
+  maxSpeed: 5,
   bindings: {
     up: "I",
     down: "K",
