@@ -22,66 +22,8 @@ let appActive = false;
 robot.setMouseDelay(0);
 robot.setKeyboardDelay(0);
 
-const relMoveMose = ({ dx: _dx = 0, dy: _dy = 0 }) => {
+const relMoveMose = ({ dx = 0, dy = 0 }) => {
   const { x, y } = robot.getMousePos();
-  logger.info(base.get("keyStates"));
-
-  const lastTime = base.get("lastTime") ?? Date.now();
-  base.set("lastTime", Date.now());
-  let dt = Date.now() - lastTime + 0.0001;
-  let ds = !base.get("keyStates.scroll") ? base.get("ds") : config.dm;
-  let mu = base.get("keyStates.brake") ? config.get("br") : base.get("mu");
-  let f0 = mu == 1 ? 0 : Math.exp(-mu * dt);
-  let f1 = mu == 0 ? dt : (1 - f0) / mu;
-  let f2 = mu == 0 ? dt ** 2 : (dt - f1) / mu;
-  let ax =
-    (base.get("keyStates.left") ? -1 : 0) +
-    (base.get("keyStates.right") ? 1 : 0);
-  let ay =
-    (base.get("keyStates.up") ? -1 : 0) + (base.get("keyStates.down") ? 1 : 0);
-  let a0 =
-    ax ** 2 + ay ** 2 > 0 ? base.get("a0") / Math.sqrt(ax ** 2 + ay ** 2) : 0;
-  let dx = f2 * a0 * ax + f1 * base.get("vx");
-  let dy = f2 * a0 * ay + f1 * base.get("vy");
-  let vx = f1 * a0 * ax + f0 * base.get("vx");
-  let vy = f1 * a0 * ay + f0 * base.get("vy");
-  dx = dx * ds + base.get("rx");
-  dy = dy * ds + base.get("ry");
-  if (a0 == 0 && 1 / ds > vx ** 2 + vy ** 2) {
-    vx = 0;
-    vy = 0;
-  } else {
-    vx = vx;
-    vy = vy;
-  }
-  base.set("rx", dx - _.round(dx));
-  base.set("ry", dy - _.round(dy));
-  base.set("vx", vx);
-  base.set("vy", vy);
-  base.set("ds", ds);
-  base.set("a0", a0);
-  base.set("mu", mu);
-  base.set("vx", vx);
-  base.set("vy", vy);
-
-  logger.box({
-    dt,
-    ds,
-    mu,
-    a0,
-    vx,
-    vy,
-    ax,
-    ay,
-    dx,
-    dy,
-    x,
-    y,
-    lastTime,
-    f0,
-    f1,
-    f2,
-  });
 
   const new_x = _.round(x + dx);
   const new_y = _.round(y + dy);
@@ -203,6 +145,12 @@ app.whenReady().then(() => {
       if (!key) logger.warn(`Unknown key ${e?.keycode}`);
       // if (key && base.get(`keyStates.${key}`))
       if (key) base.set(`keyStates.${key}`, false);
+    }
+  });
+
+  uIOhook.on("mousemove", (e) => {
+    if (appActive) {
+      consola.box(e);
     }
   });
 

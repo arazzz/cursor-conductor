@@ -5,6 +5,7 @@ class Base {
     this.data = {
       isKeyboardListenerActive: false,
       keyStates: {},
+      mouseStates: {},
       globalShortcuts: {},
       isUIOhookRunning: false,
     };
