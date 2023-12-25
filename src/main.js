@@ -101,22 +101,26 @@ const onActive = () => {
         const keyIsActive = keyStates[key];
         switch (keyName) {
           case "up":
-            if (keyIsActive && !scrollIsActive) dy -= 1 * sensitivity;
+            if (keyIsActive && !scrollIsActive)
+              relMoveMouse({ dy: -1 * sensitivity, brakeIsActive });
             else if (keyIsActive && scrollIsActive)
               robot.scrollMouse(0, 1 * scrollSensitivity);
             break;
           case "down":
-            if (keyIsActive && !scrollIsActive) dy += 1 * sensitivity;
+            if (keyIsActive && !scrollIsActive)
+              relMoveMouse({ dy: 1 * sensitivity, brakeIsActive });
             else if (keyIsActive && scrollIsActive)
               robot.scrollMouse(0, -1 * scrollSensitivity);
             break;
           case "left":
-            if (keyIsActive && !scrollIsActive) dx -= 1 * sensitivity;
+            if (keyIsActive && !scrollIsActive)
+              relMoveMouse({ dx: -1 * sensitivity, brakeIsActive });
             else if (keyIsActive && scrollIsActive)
               robot.scrollMouse(1 * scrollSensitivity, 0);
             break;
           case "right":
-            if (keyIsActive && !scrollIsActive) dx += 1 * sensitivity;
+            if (keyIsActive && !scrollIsActive)
+              relMoveMouse({ dx: 1 * sensitivity, brakeIsActive });
             else if (keyIsActive && scrollIsActive)
               robot.scrollMouse(-1 * scrollSensitivity, 0);
             break;
@@ -141,7 +145,7 @@ const onActive = () => {
         }
       }
       // logger.info(`dx: ${dx}, dy: ${dy}`);
-      if (dx || dy) relMoveMouse({ dx, dy, brakeIsActive });
+      // if (dx || dy) relMoveMouse({ dx, dy, brakeIsActive });
     }
   });
 };
