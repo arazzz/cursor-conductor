@@ -29,45 +29,38 @@ const acceleration = 1; // You can adjust this value for different acceleration 
 const decay = 0.99; // You can adjust this value for different decay effects
 
 const relMoveMouse = ({ dx = 0, dy = 0, brakeIsActive = false }) => {
-  if (brakeIsActive) {
+  const frictionApplied = brakeIsActive ? 0.7 : friction;
+
+  const relMoveMouseInterval = setInterval(() => {
     const { x: x0, y: y0 } = robot.getMousePos();
 
-    const x1 = Math.round(x0 + dx);
-    const y1 = Math.round(y0 + dy);
+    // Apply inertia
+    velocityX *= frictionApplied;
+    velocityY *= frictionApplied;
+
+    // Apply exponential decay
+    velocityX *= decay;
+    velocityY *= decay;
+
+    const x1 = Math.round(x0 + velocityX);
+    const y1 = Math.round(y0 + velocityY);
 
     robot.moveMouse(x1, y1);
-  } else {
-    const relMoveMouseInterval = setInterval(() => {
-      const { x: x0, y: y0 } = robot.getMousePos();
 
-      // Apply inertia
-      velocityX *= friction;
-      velocityY *= friction;
+    // Reset velocity
+    if (Math.abs(velocityX) < 1) velocityX = 0;
+    if (Math.abs(velocityY) < 1) velocityY = 0;
 
-      // Apply exponential decay
-      velocityX *= decay;
-      velocityY *= decay;
+    if (velocityX === 0 && velocityY === 0) {
+      clearInterval(relMoveMouseInterval);
+    }
+  }, 1000 / 60); // Run the function 60 times per second
 
-      const x1 = Math.round(x0 + velocityX);
-      const y1 = Math.round(y0 + velocityY);
+  // Apply acceleration
+  velocityX += dx * acceleration;
+  velocityY += dy * acceleration;
 
-      robot.moveMouse(x1, y1);
-
-      // Reset velocity
-      if (Math.abs(velocityX) < 1) velocityX = 0;
-      if (Math.abs(velocityY) < 1) velocityY = 0;
-
-      if (velocityX === 0 && velocityY === 0) {
-        clearInterval(relMoveMouseInterval);
-      }
-    }, 1000 / 60); // Run the function 60 times per second
-
-    // Apply acceleration
-    velocityX += dx * acceleration;
-    velocityY += dy * acceleration;
-
-    return () => clearInterval(relMoveMouseInterval);
-  }
+  return () => clearInterval(relMoveMouseInterval);
 };
 
 const onActive = () => {
