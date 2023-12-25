@@ -21,26 +21,11 @@ let appActive = false;
 robot.setMouseDelay(0);
 robot.setKeyboardDelay(0);
 
-let vx = 0,
-  vy = 0;
-const acceleration = 0.1;
-const friction = 0.9;
-
 const relMoveMose = ({ dx = 0, dy = 0 }) => {
   const { x: x0, y: y0 } = robot.getMousePos();
-
-  // Update velocity based on acceleration
-  vx += dx * acceleration;
-  vy += dy * acceleration;
-
-  // Apply friction (simulate inertia)
-  vx *= friction;
-  vy *= friction;
-
-  // Update position based on velocity
-  const x1 = Math.round(x0 + vx);
-  const y1 = Math.round(y0 + vy);
-
+  const x1 = Math.round(x0 + dx);
+  const y1 = Math.round(y0 + dy);
+  // logger.info(`Moving mouse: ${x0} ${y0} -> ${x1} ${y1}`);
   robot.moveMouse(x1, y1);
 };
 
