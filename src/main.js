@@ -1,4 +1,4 @@
-import { app } from "electron";
+import { app, Menu, Tray } from "electron";
 import { uIOhook, UiohookKey } from "uiohook-napi";
 import { gracefulExit } from "exit-hook";
 import robot from "@jitsi/robotjs";
@@ -16,17 +16,49 @@ import { reverseObject, logger } from "./helpers.js";
 
 const keyMap = reverseObject(UiohookKey);
 
+let tray = null;
 let appActive = false;
 
 robot.setMouseDelay(0);
 robot.setKeyboardDelay(0);
 
-const relMoveMose = ({ dx = 0, dy = 0 }) => {
-  const { x: x0, y: y0 } = robot.getMousePos();
-  const x1 = Math.round(x0 + dx);
-  const y1 = Math.round(y0 + dy);
-  // logger.info(`Moving mouse: ${x0} ${y0} -> ${x1} ${y1}`);
-  robot.moveMouse(x1, y1);
+let velocityX = 0;
+let velocityY = 0;
+const friction = 0.9; // You can adjust this value for different inertia effects
+const acceleration = 1; // You can adjust this value for different acceleration effects
+const decay = 0.99; // You can adjust this value for different decay effects
+
+const relMoveMouse = ({ dx = 0, dy = 0 }) => {
+  const relMoveMouseInterval = setInterval(() => {
+    const { x: x0, y: y0 } = robot.getMousePos();
+
+    // Apply inertia
+    velocityX *= friction;
+    velocityY *= friction;
+
+    // Apply exponential decay
+    velocityX *= decay;
+    velocityY *= decay;
+
+    const x1 = Math.round(x0 + velocityX);
+    const y1 = Math.round(y0 + velocityY);
+
+    robot.moveMouse(x1, y1);
+
+    // Reset velocity
+    if (Math.abs(velocityX) < 1) velocityX = 0;
+    if (Math.abs(velocityY) < 1) velocityY = 0;
+
+    if (velocityX === 0 && velocityY === 0) {
+      clearInterval(relMoveMouseInterval);
+    }
+  }, 1000 / 60); // Run the function 60 times per second
+
+  // Apply acceleration
+  velocityX += dx * acceleration;
+  velocityY += dy * acceleration;
+
+  return () => clearInterval(relMoveMouseInterval);
 };
 
 const onActive = () => {
@@ -41,7 +73,7 @@ const onActive = () => {
   base.subscribe(({ key: givenKey, value, changed }) => {
     if (appActive && givenKey.includes("keyStates")) {
       const currentKey = givenKey.split(".")[1];
-      const currentKeyName = config.reverseBindings[currentKey];
+      // const currentKeyName = config.reverseBindings[currentKey];
       const keyStates = base.get("keyStates");
       const keys = Object.keys(keyStates);
       // const allKeyStatesAreFalse = keys.every((key) => !keyStates[key]);
@@ -105,7 +137,7 @@ const onActive = () => {
         }
       }
       // logger.info(`dx: ${dx}, dy: ${dy}`);
-      if (dx || dy) relMoveMose({ dx, dy });
+      if (dx || dy) relMoveMouse({ dx, dy });
     }
   });
 };
@@ -125,6 +157,16 @@ const onInactive = () => {
 
 app.whenReady().then(() => {
   registerKeyboardListener();
+
+  tray = new Tray("./src/assets/icon.png");
+  const contextMenu = Menu.buildFromTemplate([
+    { label: "Item1", type: "radio" },
+    { label: "Item2", type: "radio" },
+    { label: "Item3", type: "radio", checked: true },
+    { label: "Item4", type: "radio" },
+  ]);
+  tray.setToolTip("Cursor Conductor");
+  tray.setContextMenu(contextMenu);
 
   base.onChange("isKeyboardListenerActive", () => {
     logger.info("Detected change in isKeyboardListenerActive...");
