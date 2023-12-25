@@ -28,37 +28,46 @@ const friction = 0.9; // You can adjust this value for different inertia effects
 const acceleration = 1; // You can adjust this value for different acceleration effects
 const decay = 0.99; // You can adjust this value for different decay effects
 
-const relMoveMouse = ({ dx = 0, dy = 0 }) => {
-  const relMoveMouseInterval = setInterval(() => {
+const relMoveMouse = ({ dx = 0, dy = 0, brakeIsActive = false }) => {
+  if (brakeIsActive) {
     const { x: x0, y: y0 } = robot.getMousePos();
 
-    // Apply inertia
-    velocityX *= friction;
-    velocityY *= friction;
-
-    // Apply exponential decay
-    velocityX *= decay;
-    velocityY *= decay;
-
-    const x1 = Math.round(x0 + velocityX);
-    const y1 = Math.round(y0 + velocityY);
+    const x1 = Math.round(x0 + dx);
+    const y1 = Math.round(y0 + dy);
 
     robot.moveMouse(x1, y1);
+  } else {
+    const relMoveMouseInterval = setInterval(() => {
+      const { x: x0, y: y0 } = robot.getMousePos();
 
-    // Reset velocity
-    if (Math.abs(velocityX) < 1) velocityX = 0;
-    if (Math.abs(velocityY) < 1) velocityY = 0;
+      // Apply inertia
+      velocityX *= friction;
+      velocityY *= friction;
 
-    if (velocityX === 0 && velocityY === 0) {
-      clearInterval(relMoveMouseInterval);
-    }
-  }, 1000 / 60); // Run the function 60 times per second
+      // Apply exponential decay
+      velocityX *= decay;
+      velocityY *= decay;
 
-  // Apply acceleration
-  velocityX += dx * acceleration;
-  velocityY += dy * acceleration;
+      const x1 = Math.round(x0 + velocityX);
+      const y1 = Math.round(y0 + velocityY);
 
-  return () => clearInterval(relMoveMouseInterval);
+      robot.moveMouse(x1, y1);
+
+      // Reset velocity
+      if (Math.abs(velocityX) < 1) velocityX = 0;
+      if (Math.abs(velocityY) < 1) velocityY = 0;
+
+      if (velocityX === 0 && velocityY === 0) {
+        clearInterval(relMoveMouseInterval);
+      }
+    }, 1000 / 60); // Run the function 60 times per second
+
+    // Apply acceleration
+    velocityX += dx * acceleration;
+    velocityY += dy * acceleration;
+
+    return () => clearInterval(relMoveMouseInterval);
+  }
 };
 
 const onActive = () => {
@@ -84,8 +93,10 @@ const onActive = () => {
       let sensitivity = config.sensitivity;
       let scrollSensitivity = config.scrollSensitivity;
       let scrollIsActive = false;
+      let brakeIsActive = false;
       if (keyStates[config.bindings["scroll"]]) scrollIsActive = true;
       if (keyStates[config.bindings["brake"]]) {
+        brakeIsActive = true;
         sensitivity = config.sensitivity * config.brakingFactor;
         scrollSensitivity =
           config.scrollSensitivity * config.scrollBrakingFactor;
@@ -137,7 +148,7 @@ const onActive = () => {
         }
       }
       // logger.info(`dx: ${dx}, dy: ${dy}`);
-      if (dx || dy) relMoveMouse({ dx, dy });
+      if (dx || dy) relMoveMouse({ dx, dy, brakeIsActive });
     }
   });
 };
@@ -158,15 +169,17 @@ const onInactive = () => {
 app.whenReady().then(() => {
   registerKeyboardListener();
 
-  tray = new Tray("./src/assets/icon.png");
-  const contextMenu = Menu.buildFromTemplate([
-    { label: "Item1", type: "radio" },
-    { label: "Item2", type: "radio" },
-    { label: "Item3", type: "radio", checked: true },
-    { label: "Item4", type: "radio" },
-  ]);
-  tray.setToolTip("Cursor Conductor");
-  tray.setContextMenu(contextMenu);
+  if (!tray) {
+    tray = new Tray("./src/assets/icon.png");
+    const contextMenu = Menu.buildFromTemplate([
+      { label: "Item1", type: "radio" },
+      { label: "Item2", type: "radio" },
+      { label: "Item3", type: "radio", checked: true },
+      { label: "Item4", type: "radio" },
+    ]);
+    tray.setToolTip("Cursor Conductor");
+    tray.setContextMenu(contextMenu);
+  }
 
   base.onChange("isKeyboardListenerActive", () => {
     logger.info("Detected change in isKeyboardListenerActive...");
