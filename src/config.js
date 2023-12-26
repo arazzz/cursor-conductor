@@ -5,9 +5,11 @@ export const config = {
   brakingFactor: 0.2,
   scrollSensitivity: 2,
   scrollBrakingFactor: 0.5,
-  // inertia: 0.9,
-  // acceleration: 5,
-  // maxSpeed: 5,
+  keyboardListenerHotkeys: {
+    toggleActivation: "Alt+`",
+    activateMode1: "Alt+`+1",
+    activateMode2: "Alt+`+2",
+  },
   bindings: {
     up: "I",
     down: "K",

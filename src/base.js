@@ -4,6 +4,7 @@ class Base {
   constructor() {
     this.data = {
       isKeyboardListenerActive: false,
+      currentMode: 1,
       keyStates: {},
       mouseStates: {},
       globalShortcuts: {},

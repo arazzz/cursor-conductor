@@ -1,6 +1,8 @@
-import { app, Menu, Tray } from "electron";
+import { app, Menu, nativeImage, Tray } from "electron";
 import { uIOhook, UiohookKey } from "uiohook-napi";
 import { gracefulExit } from "exit-hook";
+import path from "path";
+import url from "url";
 import robot from "@jitsi/robotjs";
 import base from "./base.js";
 import config from "./config.js";
@@ -13,6 +15,11 @@ import {
   uIOhookStop,
 } from "./actions.js";
 import { reverseObject, logger } from "./helpers.js";
+import applyFixes from "./fixes.js";
+
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+applyFixes();
 
 const keyMap = reverseObject(UiohookKey);
 
@@ -29,7 +36,7 @@ const acceleration = 1; // You can adjust this value for different acceleration 
 const decay = 0.99; // You can adjust this value for different decay effects
 
 const relMoveMouse = ({ dx = 0, dy = 0, brakeIsActive = false }) => {
-  const frictionApplied = brakeIsActive ? 0.7 : friction;
+  const frictionApplied = brakeIsActive ? 0.8 : friction;
 
   const relMoveMouseInterval = setInterval(() => {
     const { x: x0, y: y0 } = robot.getMousePos();
@@ -101,26 +108,22 @@ const onActive = () => {
         const keyIsActive = keyStates[key];
         switch (keyName) {
           case "up":
-            if (keyIsActive && !scrollIsActive)
-              relMoveMouse({ dy: -1 * sensitivity, brakeIsActive });
+            if (keyIsActive && !scrollIsActive) dy += -1 * sensitivity;
             else if (keyIsActive && scrollIsActive)
               robot.scrollMouse(0, 1 * scrollSensitivity);
             break;
           case "down":
-            if (keyIsActive && !scrollIsActive)
-              relMoveMouse({ dy: 1 * sensitivity, brakeIsActive });
+            if (keyIsActive && !scrollIsActive) dy += 1 * sensitivity;
             else if (keyIsActive && scrollIsActive)
               robot.scrollMouse(0, -1 * scrollSensitivity);
             break;
           case "left":
-            if (keyIsActive && !scrollIsActive)
-              relMoveMouse({ dx: -1 * sensitivity, brakeIsActive });
+            if (keyIsActive && !scrollIsActive) dx += -1 * sensitivity;
             else if (keyIsActive && scrollIsActive)
               robot.scrollMouse(1 * scrollSensitivity, 0);
             break;
           case "right":
-            if (keyIsActive && !scrollIsActive)
-              relMoveMouse({ dx: 1 * sensitivity, brakeIsActive });
+            if (keyIsActive && !scrollIsActive) dx += 1 * sensitivity;
             else if (keyIsActive && scrollIsActive)
               robot.scrollMouse(-1 * scrollSensitivity, 0);
             break;
@@ -145,7 +148,7 @@ const onActive = () => {
         }
       }
       // logger.info(`dx: ${dx}, dy: ${dy}`);
-      // if (dx || dy) relMoveMouse({ dx, dy, brakeIsActive });
+      if (dx || dy) relMoveMouse({ dx, dy, brakeIsActive });
     }
   });
 };
@@ -167,12 +170,17 @@ app.whenReady().then(() => {
   registerKeyboardListener();
 
   if (!tray) {
-    tray = new Tray("./src/assets/icon.png");
+    const iconPath = path.join(__dirname, "./assets/logo.png");
+    tray = new Tray(
+      nativeImage.createFromPath(iconPath).resize({ width: 256 })
+    );
     const contextMenu = Menu.buildFromTemplate([
-      { label: "Item1", type: "radio" },
-      { label: "Item2", type: "radio" },
-      { label: "Item3", type: "radio", checked: true },
-      { label: "Item4", type: "radio" },
+      {
+        label: "Open Config",
+        click: () => {
+          // shell.openPath("/path/to/config/file");
+        },
+      },
     ]);
     tray.setToolTip("Cursor Conductor");
     tray.setContextMenu(contextMenu);

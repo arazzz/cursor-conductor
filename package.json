@@ -15,11 +15,13 @@
     "@tweenjs/tween.js": "^21.0.0",
     "consola": "^3.2.3",
     "exit-hook": "^4.0.0",
+    "linux-distro": "^4.0.1",
     "lodash": "^4.17.21",
     "node-gyp": "^10.0.1",
     "os-keycode-fork": "^1.0.0",
     "throttle-debounce": "^5.0.0",
     "uiohook-napi": "^1.5.2",
+    "url": "^0.11.3",
     "valtio": "^1.12.1"
   },
   "devDependencies": {

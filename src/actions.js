@@ -1,16 +1,54 @@
 import { globalShortcut } from "electron";
-import { logger } from "./helpers.js";
 import base from "./base.js";
-import consola from "consola";
 import assert from "assert";
-import { colors } from "consola/utils";
+import config from "./config.js";
+import { colors, logger } from "./helpers.js";
+
+// const mainKeyboardListenerHotkey = config.keyboardListenerHotkeys[0];
+
+// export const registerKeyboardListener = () => {
+//   const ret = globalShortcut.register(mainKeyboardListenerHotkey, () =>
+//     base.set("isKeyboardListenerActive", !base.get("isKeyboardListenerActive"))
+//   );
+//   assert(ret, "registration failed");
+//   assert(
+//     globalShortcut.isRegistered(mainKeyboardListenerHotkey),
+//     "registration failed"
+//   );
+// };
 
 export const registerKeyboardListener = () => {
-  const ret = globalShortcut.register("Alt+`", () =>
-    base.set("isKeyboardListenerActive", !base.get("isKeyboardListenerActive"))
-  );
-  assert(ret, "registration failed");
-  assert(globalShortcut.isRegistered("Alt+`"), "registration failed");
+  const registerKeyboardListenerInner = (callback = () => {}) => {
+    const ret = globalShortcut.register(hotkey, callback);
+    assert(ret, "registration failed");
+    assert(globalShortcut.isRegistered(hotkey), "registration failed");
+  };
+
+  Object.keys(config.keyboardListenerHotkeys).forEach((hotkeyFunc) => {
+    const hotkey = config.keyboardListenerHotkeys[hotkeyFunc];
+    switch (hotkeyFunc) {
+      case "toggleActivation":
+        registerKeyboardListenerInner(() => {
+          base.set(
+            "isKeyboardListenerActive",
+            !base.get("isKeyboardListenerActive")
+          );
+        });
+        break;
+      case "activateMode1":
+        registerKeyboardListenerInner(() => {
+          base.set("currentMode", 1);
+        });
+        break;
+      case "activateMode2":
+        registerKeyboardListenerInner(() => {
+          base.set("currentMode", 2);
+        });
+        break;
+      default:
+        break;
+    }
+  });
 };
 
 export const registerGlobalShortcut = (key, callback) => {
