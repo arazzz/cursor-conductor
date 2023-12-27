@@ -1,4 +1,5 @@
 import _ from "lodash";
+import config from "./config.js";
 
 class Base {
   constructor() {
@@ -45,7 +46,7 @@ class Base {
     this.listeners.splice(this.listeners.indexOf(listener), 1);
   }
 
-  unsubscribeAllButFirst() {
+  unsubscribeAllButActivationListener() {
     this.listeners = [this.listeners[0]];
   }
 

@@ -31,11 +31,11 @@ robot.setKeyboardDelay(0);
 
 let velocityX = 0;
 let velocityY = 0;
-const friction = 0.9; // You can adjust this value for different inertia effects
-const acceleration = 1; // You can adjust this value for different acceleration effects
-const decay = 0.99; // You can adjust this value for different decay effects
+const friction = 0.9;
+const acceleration = 1;
+const decay = 0.99;
 
-const relMoveMouse = ({ dx = 0, dy = 0, brakeIsActive = false }) => {
+const relMoveMouseWithInertia = ({ dx = 0, dy = 0, brakeIsActive = false }) => {
   const frictionApplied = brakeIsActive ? 0.8 : friction;
 
   const relMoveMouseInterval = setInterval(() => {
@@ -70,16 +70,72 @@ const relMoveMouse = ({ dx = 0, dy = 0, brakeIsActive = false }) => {
   return () => clearInterval(relMoveMouseInterval);
 };
 
+const relMoveMouse = ({ dx = 0, dy = 0 }) => {
+  const { x: x0, y: y0 } = robot.getMousePos();
+  const x1 = Math.round(x0 + dx);
+  const y1 = Math.round(y0 + dy);
+  robot.moveMouse(x1, y1);
+};
+
+const mouseMovementHandler = ({
+  dx = 0,
+  dy = 0,
+  brakeIsActive = false,
+  scrollIsActive = false,
+  scrollDx = 0,
+  scrollDy = 0,
+}) => {
+  try {
+    const currentMode = base.get("currentMode");
+    let sensitivity = config.modes[currentMode].sensitivity;
+    let scrollSensitivity = config.modes[currentMode].scrollSensitivity;
+    if (brakeIsActive) {
+      sensitivity =
+        config.modes[currentMode].sensitivity *
+        config.modes[currentMode].brakingFactor;
+      scrollSensitivity =
+        config.modes[currentMode].scrollSensitivity *
+        config.modes[currentMode].scrollBrakingFactor;
+    }
+    if (scrollIsActive) {
+      scrollDx *= scrollSensitivity;
+      scrollDy *= scrollSensitivity;
+      robot.scrollMouse(scrollDx, scrollDy);
+    } else if (dx || dy) {
+      dx *= sensitivity;
+      dy *= sensitivity;
+      if (currentMode === 1) {
+        relMoveMouse({ dx, dy });
+      } else if (currentMode === 2) {
+        relMoveMouseWithInertia({ dx, dy, brakeIsActive });
+      }
+    }
+  } catch (err) {
+    logger.error(err);
+  }
+};
+
 const onActive = () => {
   logger.info("Activating app...");
 
   uIOhookStart(uIOhook);
 
+  // Register mode toggling hotkeys
+  Object.keys(config.keyboardListenerHotkeys).forEach((key) => {
+    if (key === "toggleActivation") return;
+    const hotKeyAccelerator = config.keyboardListenerHotkeys[key];
+    registerGlobalShortcut(hotKeyAccelerator, () => {
+      // key = activateMode1, activateMode2, etc.
+      base.set("currentMode", Number(key.replace("activateMode", "")));
+    });
+  });
+
+  // Register all other global shortcuts when app is active
   Object.keys(config.bindings).forEach((key) => {
     registerGlobalShortcut(config.bindings[key], () => {});
   });
 
-  base.subscribe(({ key: givenKey, value, changed }) => {
+  base.subscribe(({ key: givenKey }) => {
     if (appActive && givenKey.includes("keyStates")) {
       const currentKey = givenKey.split(".")[1];
       // const currentKeyName = config.reverseBindings[currentKey];
@@ -90,17 +146,12 @@ const onActive = () => {
 
       let dx = 0;
       let dy = 0;
-      let sensitivity = config.sensitivity;
-      let scrollSensitivity = config.scrollSensitivity;
+      let scrollDx = 0;
+      let scrollDy = 0;
       let scrollIsActive = false;
       let brakeIsActive = false;
       if (keyStates[config.bindings["scroll"]]) scrollIsActive = true;
-      if (keyStates[config.bindings["brake"]]) {
-        brakeIsActive = true;
-        sensitivity = config.sensitivity * config.brakingFactor;
-        scrollSensitivity =
-          config.scrollSensitivity * config.scrollBrakingFactor;
-      }
+      if (keyStates[config.bindings["brake"]]) brakeIsActive = true;
 
       for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
@@ -108,24 +159,20 @@ const onActive = () => {
         const keyIsActive = keyStates[key];
         switch (keyName) {
           case "up":
-            if (keyIsActive && !scrollIsActive) dy += -1 * sensitivity;
-            else if (keyIsActive && scrollIsActive)
-              robot.scrollMouse(0, 1 * scrollSensitivity);
+            if (keyIsActive && !scrollIsActive) dy += -1;
+            else if (keyIsActive && scrollIsActive) scrollDy += 1;
             break;
           case "down":
-            if (keyIsActive && !scrollIsActive) dy += 1 * sensitivity;
-            else if (keyIsActive && scrollIsActive)
-              robot.scrollMouse(0, -1 * scrollSensitivity);
+            if (keyIsActive && !scrollIsActive) dy += 1;
+            else if (keyIsActive && scrollIsActive) scrollDy += -1;
             break;
           case "left":
-            if (keyIsActive && !scrollIsActive) dx += -1 * sensitivity;
-            else if (keyIsActive && scrollIsActive)
-              robot.scrollMouse(1 * scrollSensitivity, 0);
+            if (keyIsActive && !scrollIsActive) dx += -1;
+            else if (keyIsActive && scrollIsActive) scrollDx += 1;
             break;
           case "right":
-            if (keyIsActive && !scrollIsActive) dx += 1 * sensitivity;
-            else if (keyIsActive && scrollIsActive)
-              robot.scrollMouse(-1 * scrollSensitivity, 0);
+            if (keyIsActive && !scrollIsActive) dx += 1;
+            else if (keyIsActive && scrollIsActive) scrollDx += -1;
             break;
           case "mb1":
             if (keyIsActive) robot.mouseToggle("down", "left");
@@ -148,7 +195,15 @@ const onActive = () => {
         }
       }
       // logger.info(`dx: ${dx}, dy: ${dy}`);
-      if (dx || dy) relMoveMouse({ dx, dy, brakeIsActive });
+      // if (dx || dy) relMoveMouse({ dx, dy, brakeIsActive });
+      mouseMovementHandler({
+        dx,
+        dy,
+        brakeIsActive,
+        scrollIsActive,
+        scrollDx,
+        scrollDy,
+      });
     }
   });
 };
@@ -158,12 +213,19 @@ const onInactive = () => {
 
   uIOhookStop(uIOhook);
 
-  // Unregister all global shortcuts when app is inactive
+  // Unregister mode toggling hotkeys
+  Object.keys(config.keyboardListenerHotkeys).forEach((key) => {
+    if (key === "toggleActivation") return;
+    const hotKeyAccelerator = config.keyboardListenerHotkeys[key];
+    unregisterGlobalShortcut(hotKeyAccelerator);
+  });
+
+  // Unregister all other global shortcuts when app is inactive
   Object.keys(config.bindings).forEach((key) => {
     unregisterGlobalShortcut(config.bindings[key]);
   });
 
-  base.unsubscribeAllButFirst();
+  base.unsubscribeAllButActivationListener();
 };
 
 app.whenReady().then(() => {

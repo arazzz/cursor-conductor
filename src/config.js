@@ -1,14 +1,24 @@
 import { reverseObject } from "./helpers.js";
 
 export const config = {
-  sensitivity: 20,
-  brakingFactor: 0.2,
-  scrollSensitivity: 2,
-  scrollBrakingFactor: 0.5,
+  modes: {
+    1: {
+      sensitivity: 40,
+      brakingFactor: 0.2,
+      scrollSensitivity: 2,
+      scrollBrakingFactor: 0.5,
+    },
+    2: {
+      sensitivity: 20,
+      brakingFactor: 0.2,
+      scrollSensitivity: 2,
+      scrollBrakingFactor: 0.5,
+    },
+  },
   keyboardListenerHotkeys: {
     toggleActivation: "Alt+`",
-    activateMode1: "Alt+`+1",
-    activateMode2: "Alt+`+2",
+    activateMode1: "Ctrl+Alt+1", // Does not use inertia
+    activateMode2: "Ctrl+Alt+2", // Uses inertia
   },
   bindings: {
     up: "I",
