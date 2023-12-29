@@ -1,0 +1,1 @@
+{"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\QProbably no good reason, 😶 but keyboard shortcuts registered via Electron's globalShortcut module are suppressed by default (i.e., key events are kept from being passed down to / processed by other apps down the line), which is a requirement for this sort of tool to work properly...\\E$"}

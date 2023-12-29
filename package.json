@@ -2,7 +2,7 @@
   "name": "cursor-conductor",
   "author": "arazzz",
   "version": "0.0.1",
-  "description": "A simple desktop app to control mouse cursor position via keyboard shortcuts.",
+  "description": "A simple first-attempt at a cross-platform electron app to control mouse cursor position, scroll and clicks via keyboard shortcuts.",
   "main": "src/main.js",
   "type": "module",
   "scripts": {
