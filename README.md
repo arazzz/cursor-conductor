@@ -80,7 +80,6 @@ You can also specify different configuration profiles (modes) in the config file
 
 NPM scripts in the package.json file:
 
-- **install**: Install dependencies.
 - **dev**: Start the app in dev mode (uses nodemon to restart on file changes).
 - **start**: Start the app.
 - **build**: Build the app for the current platform (see [electron-builder](https://www.electron.build/) for more info).
