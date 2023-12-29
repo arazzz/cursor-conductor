@@ -1,14 +1,21 @@
 import { get as _get, set as _set } from "lodash-es";
+import { UiohookKey } from "uiohook-napi";
+import defaultConfig from "../config/config.default.js";
+import { reverseObject } from "./helpers.js";
 
 class Base {
   constructor() {
     this.data = {
+      isAppActive: false,
       isKeyboardListenerActive: false,
+      config: { ...defaultConfig },
+      keyMap: reverseObject(UiohookKey),
       currentMode: 1,
       keyStates: {},
       mouseStates: {},
       globalShortcuts: {},
       isUIOhookRunning: false,
+      tray: null,
     };
     this.listeners = [];
   }

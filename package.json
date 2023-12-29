@@ -27,5 +27,20 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.arazzz.cursor-conductor",
+    "productName": "Cursor Conductor",
+    "win": {
+      "icon": "src/assets/logo.png"
+    },
+    "mac": {
+      "icon": "src/assets/logo.png",
+      "category": "public.app-category.utilities"
+    },
+    "linux": {
+      "icon": "src/assets/logo.png",
+      "category": "Utility"
+    }
   }
 }

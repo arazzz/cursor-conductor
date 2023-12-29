@@ -2,12 +2,13 @@ import { Menu, Tray, globalShortcut, nativeImage } from "electron";
 import assert from "assert";
 import path from "path";
 import base from "./base.js";
-import config, { openConfig } from "../config/config.js";
+import { openConfig } from "../config/config.js";
 import { __dirname } from "./helpers.js";
 
 export const registerActivationListener = () => {
+  const config = base.get("config");
   const mainKeyboardListenerHotkey =
-    config.keyboardListenerHotkeys.toggleActivation;
+    config?.keyboardListenerHotkeys?.toggleActivation || "Alt+`";
   const ret = globalShortcut.register(mainKeyboardListenerHotkey, () =>
     base.set("isKeyboardListenerActive", !base.get("isKeyboardListenerActive"))
   );

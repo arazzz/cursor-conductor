@@ -1,6 +1,5 @@
 import robot from "@jitsi/robotjs";
 import base from "./base.js";
-import config from "../config/config.js";
 import { logger } from "./helpers.js";
 
 robot.setMouseDelay(0);
@@ -67,6 +66,7 @@ export const mouseMovementHandler = ({
   scrollIsActive = false,
   scrollDx = 0,
   scrollDy = 0,
+  config = {},
 }) => {
   try {
     const currentMode = base.get("currentMode");
@@ -105,3 +105,5 @@ export const mouseMovementHandler = ({
     throw err;
   }
 };
+
+export const mouseToggle = (down, button) => robot.mouseToggle(down, button);
