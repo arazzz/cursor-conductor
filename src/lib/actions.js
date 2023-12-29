@@ -1,12 +1,13 @@
-import { globalShortcut } from "electron";
-import base from "./base.js";
+import { Menu, Tray, globalShortcut, nativeImage } from "electron";
 import assert from "assert";
-import configObj from "../config/config.js";
-// import { colors, logger } from "./helpers.js";
+import path from "path";
+import base from "./base.js";
+import config, { openConfig } from "../config/config.js";
+import { __dirname } from "./helpers.js";
 
 export const registerActivationListener = () => {
   const mainKeyboardListenerHotkey =
-    configObj.keyboardListenerHotkeys.toggleActivation;
+    config.keyboardListenerHotkeys.toggleActivation;
   const ret = globalShortcut.register(mainKeyboardListenerHotkey, () =>
     base.set("isKeyboardListenerActive", !base.get("isKeyboardListenerActive"))
   );
@@ -58,4 +59,27 @@ export const uIOhookStart = (uIOhook) => {
   if (base.get("isUIOhookRunning")) return;
   uIOhook.start();
   base.set("isUIOhookRunning", true);
+};
+
+export const createTray = () => {
+  if (!base.get("tray")) {
+    let tray = null;
+    const iconPath = path.join(__dirname, "./assets/logo.png");
+    tray = new Tray(
+      nativeImage.createFromPath(iconPath).resize({ width: 256 })
+    );
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: "Open Config",
+        click: () => openConfig(),
+      },
+      {
+        label: "Quit",
+        click: () => app.quit(),
+      },
+    ]);
+    tray.setToolTip("Cursor Conductor");
+    tray.setContextMenu(contextMenu);
+    base.set("tray", tray);
+  }
 };

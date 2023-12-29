@@ -1,3 +1,5 @@
+import url from "url";
+import path from "path";
 import consola from "consola";
 import { colors as consolaColors } from "consola/utils";
 
@@ -9,3 +11,6 @@ export const reverseObject = (obj) =>
     ret[value] = key;
     return ret;
   }, {});
+
+export const __filename = url.fileURLToPath(import.meta.url + "../../");
+export const __dirname = path.dirname(__filename);
