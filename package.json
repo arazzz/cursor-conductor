@@ -27,5 +27,28 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "build": {
+    "appId": "com.arazzz.cursor-conductor",
+    "productName": "Cursor Conductor",
+    "artifactName": "${productName}-${version}-${os}.${ext}",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "icon": "src/assets/logo.png"
+    },
+    "win": {
+      "icon": "src/assets/logo.png"
+    },
+    "linux": {
+      "icon": "src/assets/logo.png"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "arazzz",
+        "repo": "cursor-conductor",
+        "releaseType": "draft"
+      }
+    ]
   }
 }

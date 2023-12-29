@@ -1,3 +1,7 @@
+/**
+ * @file /src/lib/activateApp.js
+ *  - Activates the app by registering global shortcuts and starting the uIOhook instance.
+ */
 import path from "path";
 import { uIOhook } from "uiohook-napi";
 import { registerGlobalShortcut, uIOhookStart } from "./actions.js";
@@ -5,6 +9,17 @@ import { __dirname, logger } from "./helpers.js";
 import { mouseMovementHandler, mouseToggle } from "./mouseActions.js";
 import base from "./base.js";
 
+/**
+ * Activates the app.
+ *
+ * @param {object} config - The configuration object for the app.
+ * @param {string} config.keyboardListenerHotkeys - The hotkeys for toggling modes.
+ * @param {string} config.bindings - The global shortcuts for the app.
+ * @param {string} config.reverseBindings - The reverse bindings for the app.
+ * @param {boolean} config.bindings.scroll - The scroll binding for the app.
+ * @param {boolean} config.bindings.brake - The brake binding for the app.
+ * @return {void} This function does not return any value.
+ */
 export const activateApp = ({ config = {} }) => {
   logger.info("Activating app...");
 

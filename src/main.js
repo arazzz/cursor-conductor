@@ -1,3 +1,8 @@
+/**
+ * @file /src/main.js
+ *  - Main entry point for the app. This file is responsible for setting up
+ *    the app, registering global shortcuts, and handling app lifecycle events.
+ */
 import { app } from "electron";
 import { uIOhook } from "uiohook-napi";
 import { gracefulExit } from "exit-hook";
@@ -9,22 +14,25 @@ import {
   registerActivationListener,
   unregisterAllGlobalShortcuts,
   createTray,
+  updateKeyPressedState,
 } from "./lib/actions.js";
 import { logger, __dirname } from "./lib/helpers.js";
 import { loadConfig, stopConfigFileWatcher } from "./config/config.js";
 
-loadConfig();
-applyFixes();
+loadConfig(); // Load config file and set it in the base object
+applyFixes(); // Apply any fixes needed for the current OS, config, etc.
 
+// Main
 app.whenReady().then(() => {
-  registerActivationListener();
-  createTray();
+  registerActivationListener(); // Register activation listener
+  createTray(); // Create system tray icon
 
+  // Register listener for changes in the isKeyboardListenerActive property
   base.onChange("isKeyboardListenerActive", () => {
     try {
       logger.info("Detected change in isKeyboardListenerActive...");
       const config = base.get("config");
-      base.set("isAppActive", !base.get("isAppActive"));
+      base.set("isAppActive", !base.get("isAppActive")); // Toggle app state
       if (base.get("isAppActive")) activateApp({ config });
       else inactivateApp({ config });
     } catch (err) {
@@ -33,30 +41,11 @@ app.whenReady().then(() => {
     }
   });
 
-  uIOhook.on("keydown", (e) => {
-    const keyMap = base.get("keyMap");
-    const config = base.get("config");
-    const isAppActive = base.get("isAppActive");
-    const key = keyMap[String(e.keycode)];
-    if (isAppActive && Object.keys(config.reverseBindings).includes(key)) {
-      if (!key) logger.warn(`Unknown key ${e?.keycode}`);
-      // if (key && !base.get(`keyStates.${key}`))
-      if (key) base.set(`keyStates.${key}`, true);
-    }
-  });
+  // Listen for key press events
+  uIOhook.on("keydown", (e) => updateKeyPressedState(e, true));
+  uIOhook.on("keyup", (e) => updateKeyPressedState(e, false));
 
-  uIOhook.on("keyup", (e) => {
-    const keyMap = base.get("keyMap");
-    const config = base.get("config");
-    const isAppActive = base.get("isAppActive");
-    const key = keyMap[String(e.keycode)];
-    if (isAppActive && Object.keys(config.reverseBindings).includes(key)) {
-      if (!key) logger.warn(`Unknown key ${e?.keycode}`);
-      // if (key && base.get(`keyStates.${key}`))
-      if (key) base.set(`keyStates.${key}`, false);
-    }
-  });
-
+  // Set up exit handler
   app.on("before-quit", () => {
     base.set("isKeyboardListenerActive", false);
     base.unsubscribeAll();
@@ -66,6 +55,7 @@ app.whenReady().then(() => {
     gracefulExit();
   });
 
+  // Handle process exit events
   [
     `exit`,
     `SIGINT`,
@@ -76,7 +66,7 @@ app.whenReady().then(() => {
     `SIGABRT`,
   ].forEach((eventType) => {
     process.on(eventType, () => {
-      logger.warn(`Process ${eventType} received...`);
+      // logger.warn(`Process ${eventType} received...`);
       app.quit();
     });
   });

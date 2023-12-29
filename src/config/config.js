@@ -1,3 +1,10 @@
+/**
+ * @file /src/config/config.js
+ * - Contains functions for loading the configuration file and
+ *   setting it in the base object. This file is responsible for
+ *   watching the config file for changes and updating the base object
+ *   accordingly.
+ */
 import fs from "fs";
 import path from "path";
 import { app, shell } from "electron";
@@ -8,6 +15,13 @@ import defaultConfig from "./config.default.js";
 
 export const configPath = path.join(app.getPath("userData"), "config.json");
 
+/**
+ * Loads the configuration file and returns the configuration object.
+ *
+ * @param {Object} options - Optional object containing configuration options.
+ * @param {boolean} options.skipBaseSet - If true, skip setting the configuration in the base object.
+ * @returns {Object} The loaded configuration object.
+ */
 export const loadConfig = (options = { skipBaseSet: false }) => {
   let configObj = defaultConfig;
   if (fs.existsSync(configPath)) {
@@ -45,10 +59,20 @@ const configFileWatcher = fs.watchFile(configPath, () => {
   }
 });
 
+/**
+ * Stops the configuration file watcher.
+ *
+ * @return {undefined} - No return value.
+ */
 export const stopConfigFileWatcher = () => {
   if (typeof configFileWatcher.close === "function") configFileWatcher.close();
 };
 
+/**
+ * Opens the configuration file if it exists, otherwise creates a new one and opens it.
+ *
+ * @return {undefined} - No return value.
+ */
 export const openConfig = () => {
   if (fs.existsSync(configPath)) {
     shell.openPath(configPath);
