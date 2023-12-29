@@ -29,7 +29,7 @@ Using a mouse is great, but sometimes it's nice to be able to control the cursor
 
 The app can be installed in two ways:
 
-1. **Directly from GitHub:** [Download the app from GitHub](https://github.com/arazzz/cursor-conductor/releases/latest) and run the installer/executable (`.exe` for Windows, `.dmg` for macOS, `.AppImage` for Linux).
+1. **Directly from GitHub:** [Download the app from GitHub](https://github.com/arazzz/cursor-conductor/releases/latest) and run the installer/executable (e.g., `.exe` for Windows, `.dmg` for macOS, `.AppImage` for Linux).
 2. **Cloning the repo locally and installing dependencies with a node package manager (e.g., [`npm`](https://docs.npmjs.com/), [`yarn`](https://yarnpkg.com/), [`pnpm`](https://pnpm.io/), [`bun`](https://bun.sh/)):** `git clone https://github.com/arazzz/cursor-conductor.git && cd cursor-conductor && bun install`
 
 To install dependencies (e.g., using `bun`), run:
