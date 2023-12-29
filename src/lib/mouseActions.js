@@ -50,8 +50,10 @@ export const relMoveMouseWithInertia = ({
     velocityX *= decay;
     velocityY *= decay;
 
-    const x1 = Math.round(x0 + velocityX);
-    const y1 = Math.round(y0 + velocityY);
+    // const x1 = Math.round(x0 + velocityX);
+    // const y1 = Math.round(y0 + velocityY);
+    const x1 = x0 + velocityX;
+    const y1 = y0 + velocityY;
 
     robot.moveMouse(x1, y1);
 
