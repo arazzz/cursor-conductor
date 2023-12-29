@@ -23,7 +23,7 @@ A simple first-attempt at a cross-platform desktop (electron) app to control mou
 
 ## Why?
 
-Using a mouse is great, but sometimes it's nice to be able to control the cursor with the keyboard, too. 🤷 This little app enables just that. It's inspired by [EsportToys/TPMouse](https://github.com/EsportToys/TPMouse), which is a nifty tool that does the same. Unfortunately, it seems to be Windows-only (written in AutoIt-- a scripting language for automating the Windows GUI), and I wanted to be able to use it on other platforms, too, so I decided to try and build something similar from scratch using JavaScript. This is the first iteration of that attempt. It's definitely still a work in progress, but works well enough for me so far. Hopefully, it'll be useful to someone else, too. 🙂
+Using a mouse is great, but sometimes it's nice to be able to control the cursor with the keyboard, too. 🤷‍♂️ This little app enables just that. It's inspired by [EsportToys/TPMouse](https://github.com/EsportToys/TPMouse), which is a nifty tool that does the same. Unfortunately, it seems to be Windows-only (written in AutoIt-- a scripting language for automating the Windows GUI), and I wanted to be able to use it on other platforms, too, so I decided to try and build something similar from scratch using JavaScript. This is the first iteration of that attempt. It's definitely still a work in progress, but works well enough for me so far. Hopefully, it'll be useful to someone else, too. 🙂
 
 ## Installation
 
