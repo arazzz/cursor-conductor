@@ -5,6 +5,7 @@
 A simple first-attempt at a cross-platform desktop (electron) app to control mouse cursor position, scroll and clicks via keyboard shortcuts. Inspired by <a href="https://github.com/EsportToys/TPMouse">EsportToys/TPMouse</a>.
 </span>
 <br />
+<br />
 <img src="./src/assets/ex1.png" alt="Cursor Conductor Example Screenshot" width="600" style="display: block; margin: 0 auto; border-radius: 5px;" />
 
 ## Table of Contents
