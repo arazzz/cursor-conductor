@@ -1,12 +1,12 @@
 import { globalShortcut } from "electron";
 import base from "./base.js";
 import assert from "assert";
-import config from "./config.js";
-import { colors, logger } from "./helpers.js";
+import configObj from "../config/config.js";
+// import { colors, logger } from "./helpers.js";
 
-export const registerKeyboardListener = () => {
+export const registerActivationListener = () => {
   const mainKeyboardListenerHotkey =
-    config.keyboardListenerHotkeys.toggleActivation;
+    configObj.keyboardListenerHotkeys.toggleActivation;
   const ret = globalShortcut.register(mainKeyboardListenerHotkey, () =>
     base.set("isKeyboardListenerActive", !base.get("isKeyboardListenerActive"))
   );
@@ -45,10 +45,8 @@ export const registerGlobalShortcut = (key, callback) => {
 export const unregisterGlobalShortcut = (key) =>
   base.get(`globalShortcuts.${key}`).unregister();
 
-export const unregisterAllGlobalShortcuts = () => {
-  logger.log(colors.red("Unregistering all global shortcuts..."));
+export const unregisterAllGlobalShortcuts = () =>
   globalShortcut.unregisterAll();
-};
 
 export const uIOhookStop = (uIOhook) => {
   if (!base.get("isUIOhookRunning")) return;

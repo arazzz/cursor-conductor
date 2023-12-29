@@ -1,5 +1,4 @@
-import _ from "lodash";
-import config from "./config.js";
+import { get as _get, set as _set } from "lodash-es";
 
 class Base {
   constructor() {
@@ -15,13 +14,13 @@ class Base {
   }
 
   get(key) {
-    return _.get(this.data, key);
+    return _get(this.data, key);
   }
 
   set(key, value) {
     const changed = this.data[key] !== value;
     // this.data[key] = value;
-    _.set(this.data, key, value);
+    _set(this.data, key, value);
     this.listeners.forEach((listener) =>
       listener({
         key,

@@ -1,6 +1,4 @@
-import { reverseObject } from "./helpers.js";
-
-export const config = {
+export const defaultConfig = {
   modes: {
     1: {
       sensitivity: 40,
@@ -13,6 +11,9 @@ export const config = {
       brakingFactor: 0.2,
       scrollSensitivity: 2,
       scrollBrakingFactor: 0.5,
+      friction: 0.9,
+      acceleration: 1,
+      decay: 0.99,
     },
   },
   keyboardListenerHotkeys: {
@@ -33,6 +34,4 @@ export const config = {
   },
 };
 
-config.reverseBindings = reverseObject(config.bindings);
-
-export default config;
+export default defaultConfig;

@@ -4,18 +4,18 @@ import { gracefulExit } from "exit-hook";
 import path from "path";
 import url from "url";
 import robot from "@jitsi/robotjs";
-import base from "./base.js";
-import config from "./config.js";
+import base from "./lib/base.js";
+import { config, openConfig } from "./config/config.js";
 import {
   registerGlobalShortcut,
   unregisterGlobalShortcut,
-  registerKeyboardListener,
+  registerActivationListener,
   unregisterAllGlobalShortcuts,
   uIOhookStart,
   uIOhookStop,
-} from "./actions.js";
-import { reverseObject, logger } from "./helpers.js";
-import applyFixes from "./fixes.js";
+} from "./lib/actions.js";
+import { reverseObject, logger } from "./lib/helpers.js";
+import applyFixes from "./lib/fixes.js";
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,7 +23,6 @@ applyFixes();
 
 const keyMap = reverseObject(UiohookKey);
 
-let tray = null;
 let appActive = false;
 
 robot.setMouseDelay(0);
@@ -31,11 +30,17 @@ robot.setKeyboardDelay(0);
 
 let velocityX = 0;
 let velocityY = 0;
-const friction = 0.9;
-const acceleration = 1;
-const decay = 0.99;
 
-const relMoveMouseWithInertia = ({ dx = 0, dy = 0, brakeIsActive = false }) => {
+const relMoveMouseWithInertia = ({
+  dx = 0,
+  dy = 0,
+  brakeIsActive = false,
+  config: givenConfig = {},
+}) => {
+  const friction = givenConfig.friction || 0.9;
+  const acceleration = givenConfig.acceleration || 1;
+  const decay = givenConfig.decay || 0.99;
+
   const frictionApplied = brakeIsActive ? 0.8 : friction;
 
   const relMoveMouseInterval = setInterval(() => {
@@ -107,11 +112,19 @@ const mouseMovementHandler = ({
       if (currentMode === 1) {
         relMoveMouse({ dx, dy });
       } else if (currentMode === 2) {
-        relMoveMouseWithInertia({ dx, dy, brakeIsActive });
+        relMoveMouseWithInertia({
+          dx,
+          dy,
+          brakeIsActive,
+          config: config.modes[currentMode],
+        });
       }
     }
   } catch (err) {
-    logger.error(err);
+    logger.error(
+      `Failed to move mouse: ${err.message} \n ${err.stack || err.toString()}`
+    );
+    throw err;
   }
 };
 
@@ -119,6 +132,9 @@ const onActive = () => {
   logger.info("Activating app...");
 
   uIOhookStart(uIOhook);
+
+  if (base.get("tray"))
+    base.get("tray").setImage(path.join(__dirname, "./assets/logo-active.png"));
 
   // Register mode toggling hotkeys
   Object.keys(config.keyboardListenerHotkeys).forEach((key) => {
@@ -194,8 +210,6 @@ const onActive = () => {
             break;
         }
       }
-      // logger.info(`dx: ${dx}, dy: ${dy}`);
-      // if (dx || dy) relMoveMouse({ dx, dy, brakeIsActive });
       mouseMovementHandler({
         dx,
         dy,
@@ -210,6 +224,9 @@ const onActive = () => {
 
 const onInactive = () => {
   logger.info("Inactivating app...");
+
+  if (base.get("tray"))
+    base.get("tray").setImage(path.join(__dirname, "./assets/logo.png"));
 
   uIOhookStop(uIOhook);
 
@@ -228,10 +245,9 @@ const onInactive = () => {
   base.unsubscribeAllButActivationListener();
 };
 
-app.whenReady().then(() => {
-  registerKeyboardListener();
-
-  if (!tray) {
+const createTray = () => {
+  if (!base.get("tray")) {
+    let tray = null;
     const iconPath = path.join(__dirname, "./assets/logo.png");
     tray = new Tray(
       nativeImage.createFromPath(iconPath).resize({ width: 256 })
@@ -239,14 +255,22 @@ app.whenReady().then(() => {
     const contextMenu = Menu.buildFromTemplate([
       {
         label: "Open Config",
-        click: () => {
-          // shell.openPath("/path/to/config/file");
-        },
+        click: () => openConfig(),
+      },
+      {
+        label: "Quit",
+        click: () => app.quit(),
       },
     ]);
     tray.setToolTip("Cursor Conductor");
     tray.setContextMenu(contextMenu);
+    base.set("tray", tray);
   }
+};
+
+app.whenReady().then(() => {
+  registerActivationListener();
+  createTray();
 
   base.onChange("isKeyboardListenerActive", () => {
     logger.info("Detected change in isKeyboardListenerActive...");
@@ -276,7 +300,8 @@ app.whenReady().then(() => {
   app.on("before-quit", () => {
     base.set("isKeyboardListenerActive", false);
     base.unsubscribeAll();
-    unregisterAllGlobalShortcuts(uIOhook);
+    unregisterAllGlobalShortcuts();
+    logger.info("Quitting app...");
     gracefulExit();
   });
 
