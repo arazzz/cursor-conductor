@@ -1,6 +1,6 @@
 # Cursor Conductor
 
-<img src="https://raw.githubusercontent.com/arazzz/cursor-conductor/main/src/assets/logo.png" alt="Cursor Conductor" width="200" style="display: block; margin: 0 auto;" />
+<img src="./src/assets/logo.png" alt="Cursor Conductor" width="200" style="display: block; margin: 0 auto;" />
 <span style="text-align: center; display: block;">
 A simple first-attempt at a cross-platform desktop (electron) app to control mouse cursor position, scroll and clicks via keyboard shortcuts. Inspired by <a href="https://github.com/EsportToys/TPMouse">EsportToys/TPMouse</a>.
 </span>
