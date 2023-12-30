@@ -6,6 +6,7 @@
  *   accordingly.
  */
 import fs from "fs";
+import os from "os";
 import path from "path";
 import { app, shell } from "electron";
 import { logger } from "../lib/helpers.js";
@@ -14,6 +15,49 @@ import base from "../lib/base.js";
 import defaultConfig from "./config.default.js";
 
 export const configPath = path.join(app.getPath("userData"), "config.json");
+
+export const configParsers = {
+  /**
+   * Retrieves the configuration value based on the current operating system.
+   *
+   * @param {Object} configSubObj - The configuration sub-object.
+   * @return {*} - The configuration value based on the current operating system.
+   */
+  perOS: (configSubObj) =>
+    configSubObj[os.type().toLowerCase()] ?? configSubObj.default ?? null,
+};
+
+/**
+ * Parse the given config object recursively and return the parsed config.
+ *
+ * @param {object} config - The config object to be parsed.
+ * @return {object} The parsed config object with all sub-objects parsed according to the configParsers object.
+ * @throws {Error} If an error occurs while parsing the config object.
+ */
+export const parseConfig = (config) => {
+  try {
+    const parsedConfig = {};
+    Object.keys(config).forEach((key) => {
+      if (typeof config[key] === "object") {
+        // Parse the config values
+        // Loop through the parsers and parse the sub-objects if necessary
+        Object.keys(configParsers).forEach((parser) => {
+          if (typeof config[key][parser] === "object")
+            config[key] = configParsers[parser](config[key][parser]);
+        });
+        if (typeof config[key] === "object")
+          parsedConfig[key] = parseConfig(config[key]);
+        else parsedConfig[key] = config[key];
+      } else {
+        parsedConfig[key] = config[key];
+      }
+    });
+    return parsedConfig;
+  } catch (err) {
+    logger.error(err);
+    throw err;
+  }
+};
 
 /**
  * Loads the configuration file and returns the configuration object.
@@ -29,8 +73,9 @@ export const loadConfig = (options = { skipBaseSet: false }) => {
   } else {
     fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
   }
+  const parsedConfigObj = parseConfig(configObj);
   const config = {
-    ...configObj,
+    ...parsedConfigObj,
   };
   config.reverseBindings = reverseObject(config.bindings);
   if (!options.skipBaseSet) base.set("config", config);
@@ -83,6 +128,8 @@ export const openConfig = () => {
 };
 
 export default {
+  configParsers,
+  parseConfig,
   configPath,
   loadConfig,
   openConfig,

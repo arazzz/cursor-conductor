@@ -5,13 +5,23 @@ export const defaultConfig = {
     1: {
       sensitivity: 40,
       brakingFactor: 0.2,
-      scrollSensitivity: 140,
+      scrollSensitivity: {
+        perOS: {
+          windows: 140,
+          linux: 2,
+        },
+      },
       scrollBrakingFactor: 0.5,
     },
     2: {
       sensitivity: 20,
       brakingFactor: 0.2,
-      scrollSensitivity: 140,
+      scrollSensitivity: {
+        perOS: {
+          windows: 140,
+          linux: 2,
+        },
+      },
       scrollBrakingFactor: 0.5,
       friction: 0.9,
       acceleration: 1,
