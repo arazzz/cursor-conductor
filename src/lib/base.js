@@ -20,6 +20,7 @@ class Base {
       keyMap: reverseObject(UiohookKey),
       currentMode: 1,
       keyStates: {},
+      prevKeyStates: {},
       mouseStates: {},
       globalShortcuts: {},
       isUIOhookRunning: false,

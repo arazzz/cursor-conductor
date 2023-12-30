@@ -30,7 +30,10 @@ export const updateKeyPressedState = (e, value) => {
   const key = keyMap[String(e.keycode)];
   if (isAppActive && Object.keys(config.reverseBindings).includes(key)) {
     if (!key) logger.warn(`Unknown key ${e?.keycode}`);
-    if (key) base.set(`keyStates.${key}`, value);
+    if (key) {
+      base.set(`prevKeyStates.${key}`, base.get(`keyStates.${key}`));
+      base.set(`keyStates.${key}`, value);
+    }
   }
 };
 

@@ -45,8 +45,8 @@ export const activateApp = ({ config = {} }) => {
 
   base.subscribe(({ key: updatedBaseKey }) => {
     if (base.get("isAppActive") && updatedBaseKey.includes("keyStates")) {
-      // const currentKey = updatedBaseKey.split(".")[1];
-      // const currentKeyName = config.reverseBindings[currentKey];
+      const currentKey = updatedBaseKey.split(".")[1];
+      const currentKeyName = config.reverseBindings[currentKey];
       const keyStates = base.get("keyStates");
       const keys = Object.keys(keyStates);
       // const allKeyStatesAreFalse = keys.every((key) => !keyStates[key]);
@@ -65,6 +65,7 @@ export const activateApp = ({ config = {} }) => {
         const key = keys[i];
         const keyName = config.reverseBindings[key];
         const keyIsActive = keyStates[key];
+        const isCurrentKey = currentKeyName === keyName;
         switch (keyName) {
           case "up":
             if (keyIsActive && !scrollIsActive) dy += -1;
@@ -83,16 +84,22 @@ export const activateApp = ({ config = {} }) => {
             else if (keyIsActive && scrollIsActive) scrollDx += -1;
             break;
           case "mb1":
-            if (keyIsActive) mouseToggle("down", "left");
-            else if (!keyIsActive) mouseToggle("up", "left");
+            if (isCurrentKey) {
+              if (keyIsActive) mouseToggle(key, "down", "left");
+              else if (!keyIsActive) mouseToggle(key, "up", "left");
+            }
             break;
           case "mb2":
-            if (keyIsActive) mouseToggle("down", "right");
-            else if (!keyIsActive) mouseToggle("up", "right");
+            if (isCurrentKey) {
+              if (keyIsActive) mouseToggle(key, "down", "right");
+              else if (!keyIsActive) mouseToggle(key, "up", "right");
+            }
             break;
           case "mb3":
-            if (keyIsActive) mouseToggle("down", "middle");
-            else if (!keyIsActive) mouseToggle("up", "middle");
+            if (isCurrentKey) {
+              if (keyIsActive) mouseToggle(key, "down", "middle");
+              else if (!keyIsActive) mouseToggle(key, "up", "middle");
+            }
             break;
           case "brake":
             break;

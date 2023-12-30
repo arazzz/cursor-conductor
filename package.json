@@ -34,13 +34,22 @@
     "artifactName": "${productName}-${version}-${os}.${ext}",
     "mac": {
       "category": "public.app-category.utilities",
-      "icon": "src/assets/logo.png"
+      "icon": "src/assets/logo.png",
+      "target": [
+        "dmg"
+      ]
     },
     "win": {
-      "icon": "src/assets/logo.png"
+      "icon": "src/assets/logo.png",
+      "target": [
+        "portable"
+      ]
     },
     "linux": {
-      "icon": "src/assets/logo.png"
+      "icon": "src/assets/logo.png",
+      "target": [
+        "AppImage"
+      ]
     },
     "publish": [
       {

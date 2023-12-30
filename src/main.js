@@ -18,6 +18,7 @@ import {
 } from "./lib/actions.js";
 import { logger, __dirname } from "./lib/helpers.js";
 import { loadConfig, stopConfigFileWatcher } from "./config/config.js";
+import { setMouseAndKeyboardDelay } from "./lib/mouseActions.js";
 
 loadConfig(); // Load config file and set it in the base object
 applyFixes(); // Apply any fixes needed for the current OS, config, etc.
@@ -32,6 +33,10 @@ app.whenReady().then(() => {
     try {
       logger.info("Detected change in isKeyboardListenerActive...");
       const config = base.get("config");
+      setMouseAndKeyboardDelay({
+        mouseDelay: config?.mouseDelay || 0,
+        keyboardDelay: config?.keyboardDelay || 0,
+      });
       base.set("isAppActive", !base.get("isAppActive")); // Toggle app state
       if (base.get("isAppActive")) activateApp({ config });
       else inactivateApp({ config });

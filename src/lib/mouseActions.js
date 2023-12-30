@@ -7,12 +7,27 @@ import robot from "@jitsi/robotjs";
 import base from "./base.js";
 import { logger } from "./helpers.js";
 
-// Set mouse and keyboard delay to 0 to make the actions instantaneous
-robot.setMouseDelay(0);
-robot.setKeyboardDelay(0);
-
 let velocityX = 0;
 let velocityY = 0;
+
+/**
+ * Sets the delay for mouse and keyboard actions.
+ *
+ * @param {object} options - The options for setting the delay.
+ * @param {number} options.mouseDelay - The delay for mouse actions.
+ * @param {number} options.keyboardDelay - The delay for keyboard actions.
+ * @returns {undefined} - No return value.
+ */
+export const setMouseAndKeyboardDelay = ({
+  mouseDelay = 0,
+  keyboardDelay = 0,
+}) => {
+  robot.setMouseDelay(mouseDelay);
+  robot.setKeyboardDelay(keyboardDelay);
+};
+
+// Set mouse and keyboard delay to 0 to make the actions instantaneous.
+setMouseAndKeyboardDelay({ mouseDelay: 0, keyboardDelay: 0 });
 
 /**
  * Moves the mouse with inertia based on the given relative distance values.
@@ -150,8 +165,12 @@ export const mouseMovementHandler = ({
 /**
  * Toggles the state of the mouse button.
  *
- * @param {boolean} down - Indicates whether the button should be pressed down (true) or released (false).
+ * @param {string} key - The key character to toggle (e.g., values set for 'mb1', 'mb2', 'mb3' in config; mb = mouse button).
+ * @param {boolean} down - Indicates whether the button should be pressed down ("down") or released ("up").
  * @param {number} button - The button code. 0 for left button, 1 for right button, 2 for middle button.
- * @returns {void}
+ * @returns {undefined} - No return value.
  */
-export const mouseToggle = (down, button) => robot.mouseToggle(down, button);
+export const mouseToggle = (key, down, button) => {
+  if (base.get(`prevKeyStates.${key}`) !== base.get(`keyStates.${key}`))
+    robot.mouseToggle(down, button);
+};

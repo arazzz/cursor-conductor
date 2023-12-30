@@ -1,15 +1,17 @@
 export const defaultConfig = {
+  keyboardDelay: 0,
+  mouseDelay: 0,
   modes: {
     1: {
       sensitivity: 40,
       brakingFactor: 0.2,
-      scrollSensitivity: 2,
+      scrollSensitivity: 140,
       scrollBrakingFactor: 0.5,
     },
     2: {
       sensitivity: 20,
       brakingFactor: 0.2,
-      scrollSensitivity: 2,
+      scrollSensitivity: 140,
       scrollBrakingFactor: 0.5,
       friction: 0.9,
       acceleration: 1,
