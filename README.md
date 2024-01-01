@@ -13,17 +13,23 @@ A simple first-attempt at a cross-platform desktop (electron) app to control mou
 - [Cursor Conductor](#cursor-conductor)
   - [Table of Contents](#table-of-contents)
   - [Why?](#why)
+  - [Features](#features)
   - [Installation](#installation)
   - [Usage](#usage)
   - [Commands](#commands)
   - [Dependencies](#dependencies)
   - [Related](#related)
+  - [Roadmap](#roadmap)
   - [License](#license)
   - [FAQ](#faq)
 
 ## Why?
 
 Using a mouse is great, but sometimes it's nice to be able to control the cursor with the keyboard, too. 🤷‍♂️ This little app enables just that. It's inspired by [EsportToys/TPMouse](https://github.com/EsportToys/TPMouse), which is a nifty tool that does the same. Unfortunately, it seems to be Windows-only (written in AutoIt-- a scripting language for automating the Windows GUI), and I wanted to be able to use it on other platforms, too, so I decided to try and build something similar from scratch using JavaScript. This is the first iteration of that attempt. It's definitely still a work in progress, but works well enough for me so far. Hopefully, it'll be useful to someone else, too. 🙂
+
+## Features
+- Easily customizable and extensible.
+- Cross-platform (Windows, Linux and macOS).
 
 ## Installation
 
@@ -93,9 +99,19 @@ NPM scripts in the package.json file:
 
 ## Related
 
-- [EsportToys/TPMouse](https://github.com/EsportToys/TPMouse) - A virtual trackball for Windows, via vim-like homerow controls.
-- [rvaiya/warpd](https://github.com/rvaiya/warpd) - A modal keyboard driven interface for mouse manipulation.
-- [philc/vimium](https://github.com/philc/vimium) - A browser extension that provides keyboard-based navigation and control of the web in the spirit of the Vim editor.
+- [EsportToys/TPMouse](https://github.com/EsportToys/TPMouse) - A virtual trackball via vim-like homerow controls (Windows).
+- [rvaiya/warpd](https://github.com/rvaiya/warpd) - A modal keyboard driven interface for mouse manipulation (Linux, macOS and experimental support for Windows). 
+- [petoncle/mousemaster](https://github.com/petoncle/mousemaster) - A keyboard driven interface for mouse manipulation (Windows).
+- [wirekang/mouseable](https://github.com/wirekang/mouseable) - Control the mouse via the keyboard (Windows).
+- [neatdecisions/neatmouse](https://github.com/neatdecisions/neatmouse) - Keyboard-based mouse emulator (Windows).
+- [philc/vimium](https://github.com/philc/vimium) - A browser extension that provides keyboard-based navigation and control of the web in the spirit of the Vim editor (Chromium).
+- [tridactyl/tridactyl](https://github.com/tridactyl/tridactyl) - A browser extension that provides a Vim-like interface (Firefox).
+- [homerow](https://www.homerow.app/) - Keyboard shortcuts for every button (macOS).
+- [shortcat](https://shortcat.app/) - Manipulate masterfully, minus the mouse (macOS).
+
+## Roadmap
+- [ ] Grid mode (e.g., as in [warpd](https://github.com/rvaiya/warpd#grid-mode-alt-meta-g) and [TPMouse](https://github.com/EsportToys/TPMouse#grid-mode).
+- [ ] Search & click (e.g., as in [homerow](https://www.homerow.app/)).
 
 ## License
 
